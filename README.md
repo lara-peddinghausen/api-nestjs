@@ -199,9 +199,9 @@ Professor:
 
 # 11. Autor
 
-**Nome:** Lara Peddinghausen
-**Turma:** ADS 2024.2N
-**Unidade Curricular:** Programação Web 2
+**Nome:** Lara Peddinghausen  
+**Turma:** ADS 2024.2N  
+**Unidade Curricular:** Programação Web 2  
 
 # 12. Licença e Uso Acadêmico
 

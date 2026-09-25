@@ -5,6 +5,7 @@ import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AlunosModule } from './alunos/alunos.module.js';
+import { ProfessoresModule } from './professores/professores.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -16,7 +17,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       appKey: 'YOUR_APP_KEY',
       appSecret: 'YOUR_APP_SECRET',
       serviceId: 'api-aluno',
-    }), AlunosModule, // Quando crio um novo módulo, a CLI deverá adicionar automaticamente o módulo ao AppModule.
+    }), AlunosModule, ProfessoresModule, // Quando crio um novo módulo, a CLI deverá adicionar automaticamente o módulo ao AppModule.
   ],
   controllers: [AppController], // Controladores pertencentes ao módulo
   providers: [AppService],  // Serviços e outros providers

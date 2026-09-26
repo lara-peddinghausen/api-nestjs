@@ -1,74 +1,48 @@
 // Contém lógicas de negócios relacionadas a alunos. 
 
 import { Injectable } from '@nestjs/common';
+import { AlunosRepository } from './alunos.repository.js';
 
 @Injectable() // indica que essa classe pode participar do sistema de injeção de dependência do Nest.
 export class AlunosService {
-    private alunos = [
-        {
-            id: 1,
-            nome: 'Ana',
-            curso: 'Sistemas de Informação',
-        },
-        {
-            id: 2,
-            nome: 'Carlos',
-            curso: 'Ciência da Computação',
-        },
-    ];
-    
-    findAll() {
-        return this.alunos;
-    }
+  constructor(
+    private readonly alunosRepository:
+      AlunosRepository,
+  ) { }
 
-    findById(id: number) {
-        return this.alunos.find(
-            (aluno) => aluno.id === id,
-        )
-    }
+  findAll() {
+    return this.alunosRepository.findAll();
+  }
 
-    create(nome: string, curso: string) {
-        const novoAluno = {
-            id: this.alunos.length + 1,
-            nome,
-            curso,
-        };
+  findById(id: number) {
+    return this.alunosRepository.findById(id);
+  }
 
-        this.alunos.push(novoAluno);
+  create(
+    nome: string,
+    curso: string,
+  ) {
+    return this.alunosRepository.create(
+      nome,
+      curso,
+    );
+  }
 
-        return novoAluno;
-    }
+  async update(
+    id: number,
+    nome: string,
+    curso: string,
+  ) {
+    await this.alunosRepository.update(
+      id,
+      nome,
+      curso,
+    );
 
-    update(
-        id: number,
-        nome: string,
-        curso: string,
-    ) {
-        const aluno = this.alunos.find(
-            (aluno) => aluno.id === id,
-        );
+    return this.alunosRepository.findById(id);
+  }
 
-        if (!aluno) {
-            return null;
-        }
-
-        aluno.nome = nome;
-        aluno.curso = curso;
-
-        return aluno;
-    }
-
-    delete(id: number) {
-        const index = this.alunos.findIndex(
-            (aluno) => aluno.id === id,
-        );
-
-        if (index === -1) {
-            return false;
-        }
-
-        this.alunos.splice(index, 1);
-
-        return true;
-    }
+  delete(id: number) {
+    return this.alunosRepository.delete(id);
+  }
 }

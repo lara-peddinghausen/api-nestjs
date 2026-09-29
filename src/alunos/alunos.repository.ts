@@ -11,6 +11,7 @@ import { DatabaseService } from '../database/database.service.js';
 export interface AlunoRow extends RowDataPacket {
     id: number;
     nome: string;
+    email: string;
     curso: string;
 }
 
@@ -27,7 +28,7 @@ export class AlunosRepository {  // Classe será responsável pelas operações 
                 AlunoRow[]
             >(
                 `
-        SELECT id, nome, curso
+        SELECT id, nome, email, curso
         FROM alunos
         ORDER BY id
       `,
@@ -42,7 +43,7 @@ export class AlunosRepository {  // Classe será responsável pelas operações 
                 AlunoRow[]
             >(
                 `
-        SELECT id, nome, curso
+        SELECT id, nome, email, curso
         FROM alunos
         WHERE id = ?
       `,
@@ -54,6 +55,7 @@ export class AlunosRepository {  // Classe será responsável pelas operações 
 
     async create(
         nome: string,
+        email: string,
         curso: string,
     ) {
         const [result] =
@@ -63,16 +65,18 @@ export class AlunosRepository {  // Classe será responsável pelas operações 
                 `
         INSERT INTO alunos (
           nome,
+          email,
           curso
         )
-        VALUES (?, ?)
+        VALUES (?, ?, ?)
       `,
-                [nome, curso],
+                [nome, email, curso],
             );
 
         return {
             id: result.insertId,
             nome,
+            email,
             curso,
         };
     }
@@ -80,6 +84,7 @@ export class AlunosRepository {  // Classe será responsável pelas operações 
     async update(
         id: number,
         nome: string,
+        email: string,
         curso: string,
     ) {
         const [result] =
@@ -90,11 +95,13 @@ export class AlunosRepository {  // Classe será responsável pelas operações 
         UPDATE alunos
         SET
           nome = ?,
+          email = ?,
           curso = ?
         WHERE id = ?
       `,
                 [
                     nome,
+                    email,
                     curso,
                     id,
                 ],

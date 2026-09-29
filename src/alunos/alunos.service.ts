@@ -20,10 +20,12 @@ export class AlunosService {
 
   create(
     nome: string,
+    email: string,
     curso: string,
   ) {
     return this.alunosRepository.create(
       nome,
+      email,
       curso,
     );
   }
@@ -31,11 +33,13 @@ export class AlunosService {
   async update(
     id: number,
     nome: string,
+    email: string,
     curso: string,
   ) {
     await this.alunosRepository.update(
       id,
       nome,
+      email,
       curso,
     );
 

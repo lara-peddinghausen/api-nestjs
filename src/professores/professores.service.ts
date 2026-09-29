@@ -1,74 +1,47 @@
 import { Injectable } from '@nestjs/common';
+import { ProfessoresRepository } from './professores.repository.js';
 
 @Injectable()
 export class ProfessoresService {
-    private professores = [
-        {
-            id: 1,
-            nome: 'Beta',
-            disciplina: 'Banco de dados',
-        },
-        {
-            id: 2,
-            nome: 'Luide',
-            disciplina: 'Programação Web',
-        },
-    ];
+    constructor(
+        private readonly professoresRepository:
+            ProfessoresRepository,
+    ) { }
 
     findAll() {
-        return this.professores;
+        return this.professoresRepository.findAll();
     }
 
     findById(id: number) {
-        return this.professores.find(
-            (professor) => professor.id === id,
-        )
+        return this.professoresRepository.findById(id);
     }
 
-    create(nome: string, disciplina: string) {
-        const novoProfessor = {
-            id: this.professores.length + 1,
+    create(
+        nome: string,
+        disciplina: string,
+    ) {
+        return this.professoresRepository.create(
             nome,
             disciplina,
-        };
-
-        this.professores.push(novoProfessor);
-
-        return novoProfessor;
+        );
     }
 
-    update(
+    async update(
         id: number,
         nome: string,
         disciplina: string,
     ) {
-        const professor = this.professores.find(
-            (professor) => professor.id === id,
+        await this.professoresRepository.update(
+            id,
+            nome,
+            disciplina,
         );
 
-        if (!professor) {
-            return null;
-        }
-
-        professor.nome = nome;
-        professor.disciplina = disciplina;
-
-        return professor;
+        return this.professoresRepository.findById(id);
     }
 
     delete(id: number) {
-        const index = this.professores.findIndex(
-            (professor) => professor.id === id,
-        );
-
-        if (index === -1) {
-            return false;
-        }
-
-        this.professores.splice(index, 1);
-
-        return true;
+        return this.professoresRepository.delete(id);
     }
-
 
 }

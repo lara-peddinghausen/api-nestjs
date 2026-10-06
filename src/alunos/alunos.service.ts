@@ -43,13 +43,13 @@ export class AlunosService {
     id: number,
     data: UpdateAlunoDto,
   ) {
-    await this.findById(id);
+     const aluno = await this.findById(id);
 
     await this.alunosRepository.update(
       id,
-      data.nome,
-      data.email,
-      data.curso,
+      data.nome !== undefined ? data.nome : aluno.nome,
+      data.email !== undefined ? data.email : aluno.email,
+      data.curso !== undefined ? data.curso : aluno.curso,
     );
 
     return this.findById(id);

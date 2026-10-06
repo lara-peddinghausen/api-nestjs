@@ -1,18 +1,6 @@
-// Descreve como deve ser o formato do objeto que será recebido no corpo da requisição para atualizar um novo aluno
+// Define os dados para atualizar parcialmente um aluno, tornando opcionais os campos do CreateAlunoDto.
 
-import { IsNotEmpty, IsString, MaxLength, IsEmail } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateAlunoDto } from './create-aluno.dto.js';
 
-export class UpdateAlunoDto {
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  nome: string;
-
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  curso: string;
-}
+export class UpdateAlunoDto extends PartialType(CreateAlunoDto){}

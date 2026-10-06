@@ -2,8 +2,10 @@
 // Controllers devem se concentrar principalmente em receber requisições HTTP e encaminhar o trabalho para outros componentes.
 // Controlador chama um serviço
 
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, HttpCode, HttpStatus, Patch } from '@nestjs/common';
 import { AlunosService } from './alunos.service.js';
+import { CreateAlunoDto } from './dto/create-aluno.dto.js';
+import { UpdateAlunoDto } from './dto/update-aluno.dto.js';
 
 @Controller('alunos') // @Controller define o prefixo das rotas.
 export class AlunosController {
@@ -28,41 +30,28 @@ export class AlunosController {
     @Post()
     create(
         @Body()
-        body: {
-            nome: string;
-            email: string;
-            curso: string;
-        },
+        data: CreateAlunoDto,  // Usa o DTO que define os dados e as regras de validação para criar um aluno.
     ) {
-        return this.alunosService.create(
-            body.nome,
-            body.email,
-            body.curso,
-        );
+        return this.alunosService.create(data);
     }
 
-    @Put(':id')
+    @Patch(':id')  // Atualiza parcialmente os dados do aluno.
     update(
         @Param('id', ParseIntPipe)
         id: number,
 
         @Body()
-        body: {
-            nome: string;
-            email: string;
-            curso: string;
-        },
+        data: UpdateAlunoDto,  // Usa o DTO que define os dados e as regras de validação para atualizar um aluno.
     ) {
         return this.alunosService.update(
             id,
-            body.nome,
-            body.email,
-            body.curso,
+            data,
         );
     }
 
     @Delete(':id')
-    delete(
+    @HttpCode(HttpStatus.NO_CONTENT)  // Retorna status 204, sem corpo na resposta.
+    async delete(
         @Param('id', ParseIntPipe)
         id: number,
     ) {

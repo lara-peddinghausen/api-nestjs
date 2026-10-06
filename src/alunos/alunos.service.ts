@@ -1,7 +1,9 @@
 // Contém lógicas de negócios relacionadas a alunos. 
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AlunosRepository } from './alunos.repository.js';
+import { CreateAlunoDto } from './dto/create-aluno.dto.js';
+import { UpdateAlunoDto } from './dto/update-aluno.dto.js';
 
 @Injectable() // indica que essa classe pode participar do sistema de injeção de dependência do Nest.
 export class AlunosService {
@@ -14,39 +16,48 @@ export class AlunosService {
     return this.alunosRepository.findAll();
   }
 
-  findById(id: number) {
-    return this.alunosRepository.findById(id);
+  async findById(id: number) {
+    const aluno =
+      await this.alunosRepository.findById(
+        id,
+      );
+
+    if (!aluno) {
+      throw new NotFoundException(  // O Nest converte essa exception para uma resposta HTTP apropriada.
+        'Aluno não encontrado',
+      );
+    }
+
+    return aluno;
   }
 
-  create(
-    nome: string,
-    email: string,
-    curso: string,
-  ) {
+  create(data: CreateAlunoDto) {
     return this.alunosRepository.create(
-      nome,
-      email,
-      curso,
+      data.nome,
+      data.email,
+      data.curso,
     );
   }
 
   async update(
     id: number,
-    nome: string,
-    email: string,
-    curso: string,
+    data: UpdateAlunoDto,
   ) {
+    await this.findById(id);
+
     await this.alunosRepository.update(
       id,
-      nome,
-      email,
-      curso,
+      data.nome,
+      data.email,
+      data.curso,
     );
 
-    return this.alunosRepository.findById(id);
+    return this.findById(id);
   }
 
-  delete(id: number) {
-    return this.alunosRepository.delete(id);
+  async delete(id: number) {
+    await this.findById(id);
+
+    await this.alunosRepository.delete(id);
   }
 }

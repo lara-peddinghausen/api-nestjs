@@ -95,7 +95,8 @@ export class DisciplinasRepository {
       `,
                 [
                     nome,
-                    carga_horaria
+                    carga_horaria,
+                    id
                 ],
             );
 

@@ -43,16 +43,14 @@ export class AlunosService {
     id: number,
     data: UpdateAlunoDto,
   ) {
-     const aluno = await this.findById(id);
+    const aluno = await this.findById(id);
 
-    await this.alunosRepository.update(
+    return this.alunosRepository.update(
       id,
-      data.nome !== undefined ? data.nome : aluno.nome,
-      data.email !== undefined ? data.email : aluno.email,
-      data.curso !== undefined ? data.curso : aluno.curso,
+      data.nome ?? aluno.nome,
+      data.email ?? aluno.email,
+      data.curso ?? aluno.curso,
     );
-
-    return this.findById(id);
   }
 
   async delete(id: number) {

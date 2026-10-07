@@ -1,127 +1,67 @@
-// Responsável por executar as consultas SQL no banco de dados.
-
 import { Injectable } from '@nestjs/common';
-import {
-    ResultSetHeader,
-    RowDataPacket,
-} from 'mysql2';
-
-import { DatabaseService } from '../database/database.service.js';
-
-export interface AlunoRow extends RowDataPacket {
-    id: number;
-    nome: string;
-    email: string;
-    curso: string;
-}
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
-export class AlunosRepository {  // Classe será responsável pelas operações relacionadas aos alunos no banco.
-    constructor(
-        private readonly databaseService:  // AlunosRepository precisa do DatabaseService para executar SQL.
-            DatabaseService,
-    ) { }
+export class AlunosRepository {
+  constructor(
+    private readonly prisma:
+      PrismaService,
+  ) {}
 
-    async findAll() {
-        const [rows] =
-            await this.databaseService.execute<
-                AlunoRow[]
-            >(
-                `
-        SELECT id, nome, email, curso
-        FROM alunos
-        ORDER BY id
-      `,
-            );
+  findAll() {
+    return this.prisma.aluno.findMany({  // Conceitualmente semelhante a: SELECT * FROM alunos;
+      orderBy: {
+        id: 'asc',
+      },
+    });
+  }
 
-        return rows;
-    }
+  findById(id: number) {
+    return this.prisma.aluno.findUnique({  // Procura registros através de valores que identificam unicamente um registro
+      where: {
+        id,
+      },
+    });
+  }
 
-    async findById(id: number) {
-        const [rows] =
-            await this.databaseService.execute<
-                AlunoRow[]
-            >(
-                `
-        SELECT id, nome, email, curso
-        FROM alunos
-        WHERE id = ?
-      `,
-                [id],  // Utilizar parâmetros evita concatenar diretamente dados fornecidos pelo usuário dentro da instrução SQL.
-            );
+  create(
+    nome: string,
+    email: string,
+    curso: string,
+  ) {
+    return this.prisma.aluno.create({
+      data: {  // Dados que serão persistidos
+        nome,
+        email,
+        curso,
+      },
+    });
+  }
 
-        return rows[0] ?? null;
-    }
+  update(
+    id: number,
+    nome: string,
+    email: string,
+    curso: string,
+  ) {
+    return this.prisma.aluno.update({
+      where: {
+        id,
+      },
 
-    async create(
-        nome: string,
-        email: string,
-        curso: string,
-    ) {
-        const [result] =
-            await this.databaseService.execute<
-                ResultSetHeader
-            >(
-                `
-        INSERT INTO alunos (
-          nome,
-          email,
-          curso
-        )
-        VALUES (?, ?, ?)
-      `,
-                [nome, email, curso],
-            );
+      data: {
+        nome,
+        email,
+        curso,
+      },
+    });
+  }
 
-        return {
-            id: result.insertId,
-            nome,
-            email,
-            curso,
-        };
-    }
-
-    async update(
-        id: number,
-        nome: string,
-        email: string,
-        curso: string,
-    ) {
-        const [result] =
-            await this.databaseService.execute<
-                ResultSetHeader
-            >(
-                `
-        UPDATE alunos
-        SET
-          nome = ?,
-          email = ?,
-          curso = ?
-        WHERE id = ?
-      `,
-                [
-                    nome,
-                    email,
-                    curso,
-                    id,
-                ],
-            );
-
-        return result.affectedRows;
-    }
-
-    async delete(id: number) {
-        const [result] =
-            await this.databaseService.execute<
-                ResultSetHeader
-            >(
-                `
-        DELETE FROM alunos
-        WHERE id = ?
-      `,
-                [id],
-            );
-
-        return result.affectedRows;
-    }
+  delete(id: number) {
+    return this.prisma.aluno.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }

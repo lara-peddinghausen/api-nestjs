@@ -6,6 +6,7 @@ import { AlunosModule } from './alunos/alunos.module.js';
 import { ProfessoresModule } from './professores/professores.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { DisciplinaModule } from './disciplinas/disciplinas.module.js';
+import { PrismaModule } from './prisma/prisma.module.js';
 
 @Module({
   imports: [
@@ -20,6 +21,8 @@ import { DisciplinaModule } from './disciplinas/disciplinas.module.js';
     DisciplinaModule,
 
     DatabaseModule,
+
+    PrismaModule,
   ],
 })
 export class AppModule {}

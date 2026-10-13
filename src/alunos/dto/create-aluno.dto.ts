@@ -1,6 +1,6 @@
 // Descreve como deve ser o formato do objeto que será recebido no corpo da requisição para criar um novo aluno
 
-import { IsNotEmpty, IsString, MaxLength, IsEmail } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, IsEmail, IsInt, Min } from 'class-validator';
 
 export class CreateAlunoDto {
   @IsString()  // precisa ser string
@@ -9,10 +9,10 @@ export class CreateAlunoDto {
   nome: string;
 
   @IsEmail()
+  @MaxLength(150)
   email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  curso: string;
+  @IsInt()
+  @Min(1)
+  cursoId: number;
 }

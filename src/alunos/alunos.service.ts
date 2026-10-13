@@ -12,9 +12,9 @@ export class AlunosService {
       AlunosRepository,
   ) { }
 
-  findAll() {
-    return this.alunosRepository.findAll();
-  }
+  // findAll() {
+  //   return this.alunosRepository.findAll();
+  // }
 
   async findById(id: number) {
     const aluno =
@@ -35,7 +35,7 @@ export class AlunosService {
     return this.alunosRepository.create(
       data.nome,
       data.email,
-      data.curso,
+      data.cursoId,
     );
   }
 
@@ -43,16 +43,14 @@ export class AlunosService {
     id: number,
     data: UpdateAlunoDto,
   ) {
-     const aluno = await this.findById(id);
+    const aluno = await this.findById(id);
 
-    await this.alunosRepository.update(
+    return this.alunosRepository.update(
       id,
-      data.nome !== undefined ? data.nome : aluno.nome,
-      data.email !== undefined ? data.email : aluno.email,
-      data.curso !== undefined ? data.curso : aluno.curso,
+      data.nome ?? aluno.nome,
+      data.email ?? aluno.email,
+      data.cursoId ?? aluno.cursoId,
     );
-
-    return this.findById(id);
   }
 
   async delete(id: number) {
@@ -60,4 +58,16 @@ export class AlunosService {
 
     await this.alunosRepository.delete(id);
   }
+
+  async findAll(curso?: string) {
+    return this.alunosRepository.findAll(curso);
+  }
+
+  // async findAll(nome?: string) {
+  //   return this.alunosRepository.findAll(nome);
+  // }
+
+  // async findAll(page: number, limit: number) {
+  //   return this.alunosRepository.findAll(page, limit);
+  // }
 }

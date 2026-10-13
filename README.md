@@ -1,23 +1,25 @@
 # API REST com NestJS
 
-**API REST para gestão de alunos, professores e disciplinas**
+**API REST para gestão de alunos, professores, disciplinas e cursos**
 
-API desenvolvida com NestJS e TypeScript para cadastrar, consultar, atualizar e excluir registros de alunos, professores e disciplinas por meio de endpoints HTTP. Os dados são persistidos em um banco MySQL e acessados por meio de repositories e serviços organizados em módulos.
+API desenvolvida com NestJS e TypeScript para cadastrar, consultar, atualizar e excluir registros de alunos, professores, disciplinas e cursos por meio de endpoints HTTP. Os dados são persistidos em um banco MySQL/MariaDB com Prisma e acessados por meio de serviços e repositórios organizados em módulos.
 
 # 1. Descrição
 
-O projeto demonstra a construção de uma API REST usando **Node.js**, **NestJS** e **TypeScript**. A aplicação organiza as funcionalidades em módulos, controllers, services, repositories e DTOs, e utiliza respostas JSON para operações de CRUD.
+O projeto demonstra a construção de uma API REST usando **Node.js**, **NestJS**, **TypeScript** e **Prisma**. A aplicação organiza as funcionalidades em módulos, controllers, services, repositories e DTOs, além de aplicar validação de dados e respostas JSON para operações de CRUD.
 
-> Os dados são armazenados em um banco MySQL. Para executar a aplicação localmente, o projeto também inclui a configuração do banco com Docker Compose.
+> Os dados são armazenados em um banco MySQL/MariaDB. Para executar a aplicação localmente, o projeto inclui a configuração do ambiente com Docker Compose.
 
 # 2. Funcionalidades
 
-- Cadastro de alunos, professores e disciplinas;
+- Cadastro de alunos, professores, disciplinas e cursos;
 - Listagem de todos os registros;
 - Consulta de um registro pelo ID;
 - Atualização parcial dos dados pelo ID;
 - Exclusão pelo ID;
-- Persistência em banco MySQL;
+- Persistência em banco relacional com Prisma;
+- Relação entre alunos e cursos;
+- Relação entre professores e disciplinas;
 - Validação de dados usando DTOs e `class-validator`;
 - Organização por módulos e camadas de acesso a dados.
 
@@ -26,7 +28,8 @@ O projeto demonstra a construção de uma API REST usando **Node.js**, **NestJS*
 - Node.js;
 - NestJS;
 - TypeScript;
-- MySQL;
+- Prisma ORM;
+- MySQL/MariaDB;
 - Docker Compose;
 - Express, por meio do adaptador `@nestjs/platform-express`;
 - `class-validator` e `class-transformer`;
@@ -62,14 +65,25 @@ api-aluno/
 │   │   └── dto/
 │   │       ├── create-disciplina.dto.ts
 │   │       └── update-disciplina.dto.ts
-│   ├── database/
-│   │   ├── database.module.ts
-│   │   └── database.service.ts
+│   ├── cursos/
+│   │   ├── cursos.controller.ts
+│   │   ├── cursos.module.ts
+│   │   ├── cursos.repository.ts
+│   │   ├── cursos.service.ts
+│   │   └── dto/
+│   │       ├── create-curso.dto.ts
+│   │       └── update-curso.dto.ts
+│   ├── prisma/
+│   │   ├── prisma.module.ts
+│   │   └── prisma.service.ts
 │   ├── app.controller.ts
 │   ├── app.module.ts
 │   ├── app.service.ts
 │   ├── main.ts
-│   └── app.module.ts
+│   └── generated/
+│       └── prisma/
+├── prisma/
+│   └── schema.prisma
 ├── test/
 ├── docker-compose.yml
 ├── .env
@@ -83,23 +97,28 @@ api-aluno/
 ├── vitest.config.ts
 ├── vitest.config.e2e.ts
 ├── oxlint.json
-└── nest-cli.json
+├── nest-cli.json
+└── prisma7.config.ts
 ```
 
 Descrição resumida:
 
 - `src/main.ts` — inicializa a aplicação e inicia o servidor;
 - `src/app.module.ts` — módulo raiz que importa os módulos da aplicação;
-- `src/database/database.service.ts` — configura e gerencia a conexão com o banco MySQL;
+- `src/prisma/prisma.service.ts` — configura e gerencia a conexão com o banco usando Prisma;
 - `src/alunos/alunos.controller.ts` — define as rotas HTTP de alunos;
 - `src/alunos/alunos.service.ts` — implementa a lógica de negócios de alunos;
-- `src/alunos/alunos.repository.ts` — executa as consultas SQL relacionadas a alunos;
+- `src/alunos/alunos.repository.ts` — executa as operações de acesso a dados com Prisma;
 - `src/professores/professores.controller.ts` — define as rotas HTTP de professores;
 - `src/professores/professores.service.ts` — implementa a lógica de negócios de professores;
-- `src/professores/professores.repository.ts` — executa as consultas SQL relacionadas a professores;
+- `src/professores/professores.repository.ts` — executa as consultas relacionadas a professores;
 - `src/disciplinas/disciplinas.controller.ts` — define as rotas HTTP de disciplinas;
 - `src/disciplinas/disciplinas.service.ts` — implementa a lógica de negócios de disciplinas;
-- `src/disciplinas/disciplinas.repository.ts` — executa as consultas SQL relacionadas a disciplinas;
+- `src/disciplinas/disciplinas.repository.ts` — executa as consultas relacionadas a disciplinas;
+- `src/cursos/cursos.controller.ts` — define as rotas HTTP de cursos;
+- `src/cursos/cursos.service.ts` — implementa a lógica de negócios de cursos;
+- `src/cursos/cursos.repository.ts` — executa as consultas relacionadas a cursos;
+- `prisma/schema.prisma` — define o schema do banco e os relacionamentos do sistema;
 - `package.json` — define as dependências e os comandos do projeto.
 
 # 5. Pré-requisitos
@@ -107,7 +126,7 @@ Descrição resumida:
 - Node.js;
 - npm;
 - Docker e Docker Compose;
-- MySQL;
+- MySQL/MariaDB;
 - Git.
 
 # 6. Instalação
@@ -115,7 +134,7 @@ Descrição resumida:
 ## 6.1 Clone o repositório
 
 ```bash
-git clone <https://github.com/lara-peddinghausen/api-nestjs.git>
+git clone https://github.com/lara-peddinghausen/api-nestjs.git
 ```
 
 ## 6.2 Acesse a pasta do projeto
@@ -153,28 +172,7 @@ docker compose up -d
 
 O arquivo `docker-compose.yml` cria o banco `api_rest`, o usuário `api_user` e o volume `mysql_data` para persistência dos dados.
 
-Antes de iniciar a API, crie as tabelas necessárias no banco:
-
-```sql
-CREATE TABLE alunos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL,
-    curso VARCHAR(100) NOT NULL
-);
-
-CREATE TABLE professores (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    disciplina VARCHAR(100) NOT NULL
-);
-
-CREATE TABLE disciplinas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    carga_horaria INT NOT NULL
-);
-```
+Antes de iniciar a API, é necessário garantir que o banco e o schema do Prisma estejam prontos. O projeto usa as tabelas geradas a partir de `prisma/schema.prisma` e os modelos `Aluno`, `Curso`, `Professor` e `Disciplina`.
 
 # 9. Execução do Projeto
 
@@ -182,9 +180,9 @@ CREATE TABLE disciplinas (
 npm run start:dev
 ```
 
-Por padrão, o servidor fica disponível em `http://localhost:3000`. Por padrão, o servidor fica disponível em http://localhost:3000. Para usar outra porta, defina a variável de ambiente PORT antes de iniciar a aplicação.
+Por padrão, o servidor fica disponível em `http://localhost:3000`. Para usar outra porta, defina a variável de ambiente `PORT` antes de iniciar a aplicação.
 
-> Antes de iniciar, confirme que o banco MySQL está em execução e que as tabelas `alunos`, `professores` e `disciplinas` já foram criadas.
+> Antes de iniciar, confirme que o banco MySQL/MariaDB está em execução e que a conexão com o Prisma foi configurada corretamente.
 
 # 10. Endpoints da API
 
@@ -218,6 +216,16 @@ Por padrão, o servidor fica disponível em `http://localhost:3000`. Por padrão
 | PATCH  | `/disciplinas/:id`  | Atualiza dados de uma disciplina    |
 | DELETE | `/disciplinas/:id`  | Remove uma disciplina               |
 
+## Cursos
+
+| Método | Endpoint      | Descrição                    |
+| ------ | ------------- | ---------------------------- |
+| GET    | `/cursos`     | Lista todos os cursos        |
+| GET    | `/cursos/:id` | Busca um curso pelo ID       |
+| POST   | `/cursos`     | Cadastra um curso            |
+| PATCH  | `/cursos/:id` | Atualiza dados de um curso   |
+| DELETE | `/cursos/:id` | Remove um curso              |
+
 # 11. Exemplos de Requisição
 
 ## Cadastro de aluno
@@ -231,7 +239,7 @@ Content-Type: application/json
 {
   "nome": "Ana",
   "email": "ana@email.com",
-  "curso": "ADS"
+  "cursoId": 1
 }
 ```
 
@@ -247,7 +255,7 @@ Content-Type: application/json
 ```json
 {
   "nome": "Beatriz",
-  "disciplina": "Banco de Dados"
+  "disciplinaIds": [1, 2]
 }
 ```
 
@@ -261,7 +269,20 @@ Content-Type: application/json
 ```json
 {
   "nome": "Algoritmos",
-  "carga_horaria": 80
+  "cargaHoraria": 80
+}
+```
+
+## Cadastro de curso
+
+```http
+POST /cursos
+Content-Type: application/json
+```
+
+```json
+{
+  "nome": "Análise e Desenvolvimento de Sistemas"
 }
 ```
 
@@ -276,54 +297,71 @@ Content-Type: application/json
 {
   "nome": "Ana Silva",
   "email": "ana.silva@email.com",
-  "curso": "Engenharia de Software"
+  "cursoId": 2
 }
 ```
 
-Para consultar, atualizar ou remover, use `GET /alunos/1`, `PATCH /alunos/1` ou `DELETE /alunos/1`. Os endpoints de professores e disciplinas seguem o mesmo padrão.
+Para consultar, atualizar ou remover, use `GET /alunos/1`, `PATCH /alunos/1` ou `DELETE /alunos/1`. Os endpoints de professores, disciplinas e cursos seguem o mesmo padrão.
 
 # 12. Modelo de Dados
 
-A API trabalha com as entidades `Aluno`, `Professor` e `Disciplina`:
+A API trabalha com as entidades `Aluno`, `Curso`, `Professor` e `Disciplina`:
 
 ```
 Aluno
 ├── id
 ├── nome
 ├── email
+├── cursoId
 └── curso
+```
+
+```
+Curso
+├── id
+├── nome
+└── alunos
 ```
 
 ```
 Professor
 ├── id
 ├── nome
-└── disciplina
+└── disciplinas
 ```
 
 ```
 Disciplina
 ├── id
 ├── nome
-└── carga_horaria
+├── cargaHoraria
+└── professores
 ```
+
 **Estrutura das entidades:**
 
 Aluno:
 - `id`: identificador numérico;
 - `nome`: nome do aluno;
 - `email`: e-mail do aluno;
-- `curso`: curso do aluno.  
-  
+- `cursoId`: identificador do curso relacionado;
+- `curso`: relação com o curso do aluno.
+
+Curso:
+- `id`: identificador numérico;
+- `nome`: nome do curso;
+- `alunos`: lista de alunos vinculados ao curso.
+
 Professor:
 - `id`: identificador numérico;
 - `nome`: nome do professor;
-- `disciplina`: disciplina ministrada.
+- `disciplinas`: disciplinas ministradas pelo professor.
 
 Disciplina:
 - `id`: identificador numérico;
 - `nome`: nome da disciplina;
-- `carga_horaria`: carga horaria da disciplina.
+- `cargaHoraria`: carga horária da disciplina;
+- `professores`: professores que ministram a disciplina.
 
 # 13. Autor
 

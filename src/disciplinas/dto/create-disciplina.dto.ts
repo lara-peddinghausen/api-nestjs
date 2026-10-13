@@ -8,5 +8,5 @@ export class CreateDisciplinaDto {
 
   @IsInt()
   @IsNotEmpty()
-  carga_horaria: number;
+  cargaHoraria: number;
 }

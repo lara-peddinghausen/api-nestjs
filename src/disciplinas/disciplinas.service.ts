@@ -1,4 +1,4 @@
-// Contém lógicas de negócios relacionadas a alunos. 
+// Contém lógicas de negócios relacionadas a disciplinas. 
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DisciplinasRepository } from './disciplinas.repository.js';
@@ -35,7 +35,7 @@ export class DisciplinasService {
   create(data: CreateDisciplinaDto) {
     return this.disciplinasRepository.create(
       data.nome,
-      data.carga_horaria
+      data.cargaHoraria
     );
   }
 
@@ -48,7 +48,7 @@ export class DisciplinasService {
     await this.disciplinasRepository.update(
       id,
       data.nome !== undefined ? data.nome : disciplina.nome,
-      data.carga_horaria !== undefined ? data.carga_horaria : disciplina.carga_horaria
+      data.cargaHoraria !== undefined ? data.cargaHoraria : disciplina.cargaHoraria
     );
 
     return this.findById(id);

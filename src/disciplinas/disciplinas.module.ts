@@ -2,7 +2,7 @@
 
 import { Module } from '@nestjs/common';
 
-import { DatabaseModule } from '../database/database.module.js';
+import { PrismaModule } from '../prisma/prisma.module.js';
 
 import { DisciplinasController } from './disciplinas.controller.js';
 import { DisciplinasRepository } from './disciplinas.repository.js';
@@ -10,7 +10,7 @@ import { DisciplinasService } from './disciplinas.service.js';
 
 @Module({
   imports: [
-    DatabaseModule,
+    PrismaModule,
   ],
 
   controllers: [

@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProfessoresRepository } from './professores.repository.js';
+import { CreateProfessorDto } from './dto/create-professor.dto.js';
+import { UpdateProfessorDto } from './dto/update-professor.dto.js';
 
 @Injectable()
 export class ProfessoresService {
@@ -12,36 +14,46 @@ export class ProfessoresService {
         return this.professoresRepository.findAll();
     }
 
-    findById(id: number) {
-        return this.professoresRepository.findById(id);
+    async findById(id: number) {
+        const professor =
+            await this.professoresRepository.findById(
+                id,
+            );
+
+        if (!professor) {
+            throw new NotFoundException(  // O Nest converte essa exception para uma resposta HTTP apropriada.
+                'Professor não encontrado',
+            );
+        }
+
+        return professor;
     }
 
-    create(
-        nome: string,
-        disciplina: string,
-    ) {
+    create(data: CreateProfessorDto) {
         return this.professoresRepository.create(
-            nome,
-            disciplina,
+            data.nome,
+            data.disciplinaIds
         );
+
     }
 
     async update(
         id: number,
-        nome: string,
-        disciplina: string,
+        data: UpdateProfessorDto,
     ) {
-        await this.professoresRepository.update(
-            id,
-            nome,
-            disciplina,
-        );
+        const professor = await this.findById(id);
 
-        return this.professoresRepository.findById(id);
+        return this.professoresRepository.update(
+            id,
+            data.nome ?? professor.nome,
+            data.disciplinaIds
+        );
     }
 
-    delete(id: number) {
-        return this.professoresRepository.delete(id);
+    async delete(id: number) {
+        await this.findById(id);
+
+        await this.professoresRepository.delete(id);
     }
 
 }

@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, HttpCode, HttpStatus, Patch, Query } from '@nestjs/common';
 import { ProfessoresService } from './professores.service.js';
+import { CreateProfessorDto } from './dto/create-professor.dto.js';
+import { UpdateProfessorDto } from './dto/update-professor.dto.js';
 
 @Controller('professores')
 export class ProfessoresController {
@@ -8,48 +10,45 @@ export class ProfessoresController {
     ) { }
 
     @Get()
-    listar() {
+    findAll() {
         return this.professoresService.findAll();
     }
 
     @Get(':id')
     findById(
-        @Param('id', ParseIntPipe) id: number,  // ParseIntPipe converte para inteiro.
+        @Param('id', ParseIntPipe)
+        id: number,  // ParseIntPipe converte para inteiro.
     ) {
         return this.professoresService.findById(id);
     }
 
     @Post()
     create(
-        @Body() body: {
-            nome: string;
-            disciplina: string;
-        },
+        @Body()
+        data: CreateProfessorDto,  // Usa o DTO que define os dados e as regras de validação para criar um aluno.
     ) {
-        return this.professoresService.create(
-            body.nome,
-            body.disciplina
-        )
+        return this.professoresService.create(data);
     }
 
-    @Put(':id')
+    @Patch(':id')  // Atualiza parcialmente os dados do aluno.
     update(
-        @Param('id', ParseIntPipe) id: number,
-        @Body() body: {
-            nome: string,
-            disciplina: string;
-        },
+        @Param('id', ParseIntPipe)
+        id: number,
+
+        @Body()
+        data: UpdateProfessorDto,  // Usa o DTO que define os dados e as regras de validação para atualizar um aluno.
     ) {
         return this.professoresService.update(
             id,
-            body.nome,
-            body.disciplina
+            data,
         );
     }
 
     @Delete(':id')
-    delete(
-        @Param('id', ParseIntPipe) id: number,
+    @HttpCode(HttpStatus.NO_CONTENT)  // Retorna status 204, sem corpo na resposta.
+    async delete(
+        @Param('id', ParseIntPipe)
+        id: number,
     ) {
         return this.professoresService.delete(id);
     }

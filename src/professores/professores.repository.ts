@@ -1,118 +1,81 @@
 import { Injectable } from '@nestjs/common';
-import {
-    ResultSetHeader,
-    RowDataPacket,
-} from 'mysql2';
-
-import { DatabaseService } from '../database/database.service.js';
-
-export interface ProfessorRow extends RowDataPacket {
-    id: number;
-    nome: string;
-    disciplina: string;
-}
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class ProfessoresRepository {  // Classe será responsável pelas operações relacionadas aos alunos no banco.
     constructor(
-        private readonly databaseService:  // ProfessoresRepository precisa do DatabaseService para executar SQL.
-            DatabaseService,
+        private readonly prisma:  // ProfessoresRepository precisa do DatabaseService para executar SQL.
+            PrismaService,
     ) { }
 
     async findAll() {
-        const [rows] =
-            await this.databaseService.execute<
-                ProfessorRow[]
-            >(
-                `
-        SELECT id, nome, disciplina
-        FROM professores
-        ORDER BY id
-      `,
-            );
-
-        return rows;
+        return this.prisma.professor.findMany({
+            orderBy: {
+                id: 'asc',
+            },
+            include: {
+                disciplinas: true,
+            },
+        });
     }
 
     async findById(id: number) {
-        const [rows] =
-            await this.databaseService.execute<
-                ProfessorRow[]
-            >(
-                `
-        SELECT id, nome, disciplina
-        FROM professores
-        WHERE id = ?
-      `,
-                [id],  // Utilizar parâmetros evita concatenar diretamente dados fornecidos pelo usuário dentro da instrução SQL.
-            );
-
-        return rows[0] ?? null;
+        return this.prisma.professor.findUnique({
+            where: {
+                id,
+            },
+            include: {
+                disciplinas: true,
+            },
+        });
     }
 
     async create(
         nome: string,
-        disciplina: string
+        disciplinaIds: number[]
     ) {
-        const [result] =
-            await this.databaseService.execute<
-                ResultSetHeader
-            >(
-                `
-        INSERT INTO professores (
-          nome,
-          disciplina
-        )
-        VALUES (?, ?)
-      `,
-                [nome, disciplina],
-            );
-
-        return {
-            id: result.insertId,
-            nome,
-            disciplina,
-        };
+        return this.prisma.professor.create({
+            data: {
+                nome,
+                disciplinas: {
+                    connect: disciplinaIds.map(id => ({ id })),
+                },
+            },
+            include: {
+                disciplinas: true,
+            },
+        });
     }
 
     async update(
         id: number,
-        nome: string,
-        disciplina: string
+        nome?: string,  // opcional: pode não ser enviado
+        disciplinaIds?: number[],  // opcional: pode não ser enviado
     ) {
-        const [result] =
-            await this.databaseService.execute<
-                ResultSetHeader
-            >(
-                `
-        UPDATE professores
-        SET
-          nome = ?,
-          disciplina = ?,
-        WHERE id = ?
-      `,
-                [
-                    nome,
-                    disciplina,
-                    id,
-                ],
-            );
+        return this.prisma.professor.update({
+            where: {
+                id,
+            },
 
-        return result.affectedRows;
+            data: {
+                nome,
+                disciplinas: disciplinaIds !== undefined
+                    ? {
+                        set: disciplinaIds.map(id => ({ id })),  // set substitui os vínculos pela lista enviada. Se não enviar disciplinaIds, os vínculos permanecem; se enviar [], todos são removidos.
+                    }
+                    : undefined,
+            },
+            include: {  // Inclui os dados relacionados no resultado da consulta.
+                disciplinas: true,
+            },
+        });
     }
 
     async delete(id: number) {
-        const [result] =
-            await this.databaseService.execute<
-                ResultSetHeader
-            >(
-                `
-        DELETE FROM professores
-        WHERE id = ?
-      `,
-                [id],
-            );
-
-        return result.affectedRows;
+        return this.prisma.professor.delete({
+            where: {
+                id,
+            },
+        });
     }
 }

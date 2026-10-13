@@ -12,9 +12,9 @@ export class AlunosService {
       AlunosRepository,
   ) { }
 
-  findAll() {
-    return this.alunosRepository.findAll();
-  }
+  // findAll() {
+  //   return this.alunosRepository.findAll();
+  // }
 
   async findById(id: number) {
     const aluno =
@@ -35,7 +35,7 @@ export class AlunosService {
     return this.alunosRepository.create(
       data.nome,
       data.email,
-      data.curso,
+      data.cursoId,
     );
   }
 
@@ -49,7 +49,7 @@ export class AlunosService {
       id,
       data.nome ?? aluno.nome,
       data.email ?? aluno.email,
-      data.curso ?? aluno.curso,
+      data.cursoId ?? aluno.cursoId,
     );
   }
 
@@ -58,4 +58,16 @@ export class AlunosService {
 
     await this.alunosRepository.delete(id);
   }
+
+  async findAll(curso?: string) {
+    return this.alunosRepository.findAll(curso);
+  }
+
+  // async findAll(nome?: string) {
+  //   return this.alunosRepository.findAll(nome);
+  // }
+
+  // async findAll(page: number, limit: number) {
+  //   return this.alunosRepository.findAll(page, limit);
+  // }
 }

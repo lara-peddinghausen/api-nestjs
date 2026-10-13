@@ -2,7 +2,7 @@
 // Controllers devem se concentrar principalmente em receber requisições HTTP e encaminhar o trabalho para outros componentes.
 // Controlador chama um serviço
 
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, HttpCode, HttpStatus, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, HttpCode, HttpStatus, Patch, Query } from '@nestjs/common';
 import { AlunosService } from './alunos.service.js';
 import { CreateAlunoDto } from './dto/create-aluno.dto.js';
 import { UpdateAlunoDto } from './dto/update-aluno.dto.js';
@@ -14,10 +14,10 @@ export class AlunosController {
             AlunosService,
     ) { }
 
-    @Get()
-    findAll() {
-        return this.alunosService.findAll();
-    }
+    // @Get()
+    // findAll() {
+    //     return this.alunosService.findAll();
+    // }
 
     @Get(':id')
     findById(
@@ -57,4 +57,22 @@ export class AlunosController {
     ) {
         return this.alunosService.delete(id);
     }
+
+    @Get()
+    findAll(@Query('curso') curso?: string) {
+        return this.alunosService.findAll(curso);
+    }
+
+    // @Get()
+    // findAll(@Query('nome') nome?: string) {
+    //     return this.alunosService.findAll(nome);
+    // }
+
+    // @Get()
+    // findAll(
+    //     @Query('page', ParseIntPipe) page: number,
+    //     @Query('limit', ParseIntPipe) limit: number,
+    // ) {
+    //     return this.alunosService.findAll(page, limit);
+    // }
 }
